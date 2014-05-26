@@ -3,3 +3,9 @@ c:\users\kate\documents\visual studio 2010\Projects\Parser\Parser\bin\Release\Pa
 c:\users\kate\documents\visual studio 2010\Projects\Parser\Parser\bin\Release\Parser.pdb
 c:\users\kate\documents\visual studio 2010\Projects\Parser\Parser\obj\Release\Parser.dll
 c:\users\kate\documents\visual studio 2010\Projects\Parser\Parser\obj\Release\Parser.pdb
+D:\Work\Parser\Parser\bin\Release\Parser.cs
+D:\Work\Parser\Parser\bin\Release\Parser.pdb
+D:\Work\Parser\Parser\obj\Release\ResolveAssemblyReference.cache
+D:\Work\Parser\Parser\obj\Release\Parser.dll
+D:\Work\Parser\Parser\obj\Release\Parser.pdb
+D:\Work\Parser\Parser\bin\Release\Parser.dll

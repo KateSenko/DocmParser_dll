@@ -13,7 +13,7 @@ public class Parser
 {
     //-----------DocBook---------------
 
-    public void createXML(string XmlFilePath, string str)
+    private void createXML(string XmlFilePath, string str)
     {
         try
         {
@@ -40,7 +40,42 @@ public class Parser
         {
             Console.WriteLine(ex.Message);
         }
-        addData(XmlFilePath, str);
+     //   addData(XmlFilePath, str);
+    }
+
+    public void convert(string FilePath, string DocmFileName)
+    {
+        string DocmFilePath = System.IO.Path.Combine(FilePath, (DocmFileName + ".docm"));
+        string XmlFilePath = System.IO.Path.Combine(FilePath, (DocmFileName + ".xml"));
+        createXML(XmlFilePath, "");
+        XmlDocument document = new XmlDocument();
+        document.Load(XmlFilePath);
+        XmlNode element = document.CreateElement("info");
+        document.DocumentElement.AppendChild(element);
+
+
+        XmlNode title = document.CreateElement("title");
+        title.InnerText = FilePath;
+        element.AppendChild(title);
+
+        XmlNode chapter = document.CreateElement("chapter");
+        document.DocumentElement.AppendChild(chapter); 
+
+        using (WordprocessingDocument doc = WordprocessingDocument.Open(DocmFilePath, true))
+        {
+            var body = doc.MainDocumentPart.Document.Body;
+
+            
+
+            foreach (var text in body.Descendants<Text>())
+            {
+                XmlNode para = document.CreateElement("para");
+                para.InnerText = text.Text;
+                chapter.AppendChild(para);
+            }
+        }
+        document.Save(XmlFilePath);
+
     }
 
     private void addData(string XmlFilePath, string str)
@@ -141,6 +176,39 @@ public class Parser
 
 
         return PlainTextInWord.ToString();
+    }
+
+    public void addData(string XmlFilePath, StringBuilder str)
+    {
+        XmlDocument document = new XmlDocument();
+
+        document.Load(XmlFilePath);
+        XmlNode element = document.CreateElement("info");
+        document.DocumentElement.AppendChild(element);
+
+
+        XmlNode title = document.CreateElement("title");
+        title.InnerText = XmlFilePath;
+        element.AppendChild(title);
+
+        XmlNode chapter = document.CreateElement("chapter");
+        document.DocumentElement.AppendChild(chapter); // указываем родителя
+
+        XmlNode para = document.CreateElement("para");
+        para.InnerText = str.ToString();
+        chapter.AppendChild(para);
+
+
+
+
+        document.Save(XmlFilePath);
+
+        // Console.WriteLine("Data have been added to xml!");
+
+        // Console.ReadKey();
+        // Console.WriteLine(XmlToJSON(document));
+
+
     }
 }
 
