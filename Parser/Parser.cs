@@ -4,14 +4,26 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Xml;
+using System.Runtime.InteropServices;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 
 
+
+
 public class Parser
 {
     //-----------DocBook---------------
+    public Parser() { }
+
+    //[DllImport("DocumentFormat.OpenXml")]
+    //public extern class OpenXmlElement;
+
+    public String calc(String a, String b)
+    {
+        return "Ok";
+    }
 
     private void createXML(string XmlFilePath, string str)
     {
@@ -23,9 +35,9 @@ public class Parser
 
                 textWritter.WriteStartDocument();
                 string txt = "http://docbook.org/ns/docbook";
-                textWritter.WriteStartElement("book " , txt);
-               
-                
+                textWritter.WriteStartElement("book ", txt);
+
+
                 textWritter.WriteEndElement();
 
                 textWritter.Close();
@@ -40,41 +52,58 @@ public class Parser
         {
             Console.WriteLine(ex.Message);
         }
-     //   addData(XmlFilePath, str);
+        //   addData(XmlFilePath, str);
     }
 
-    public void convert(string FilePath, string DocmFileName)
+    // основная функция конвертации
+
+    public void convert(String FilePath, String DocmFileName)
     {
-        string DocmFilePath = System.IO.Path.Combine(FilePath, (DocmFileName + ".docm"));
-        string XmlFilePath = System.IO.Path.Combine(FilePath, (DocmFileName + ".xml"));
-        createXML(XmlFilePath, "");
-        XmlDocument document = new XmlDocument();
-        document.Load(XmlFilePath);
-        XmlNode element = document.CreateElement("info");
-        document.DocumentElement.AppendChild(element);
+        // FilePath = @"d:\1\";
+        // DocmFileName = "130349";
+        string LogFilePath = System.IO.Path.Combine(FilePath.ToString(), ("ErrorLog" + ".txt")); //file for containing error docx files
 
 
-        XmlNode title = document.CreateElement("title");
-        title.InnerText = FilePath;
-        element.AppendChild(title);
+        string DocmFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocmFileName.ToString() + ".docx"));
+        string XmlFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocmFileName.ToString() + ".xml"));
 
-        XmlNode chapter = document.CreateElement("chapter");
-        document.DocumentElement.AppendChild(chapter); 
-
-        using (WordprocessingDocument doc = WordprocessingDocument.Open(DocmFilePath, true))
+        try
         {
-            var body = doc.MainDocumentPart.Document.Body;
+            createXML(XmlFilePath, "");
+            XmlDocument document = new XmlDocument();
+            document.Load(XmlFilePath);
+            XmlNode element = document.CreateElement("info");
+            document.DocumentElement.AppendChild(element);
 
-            
 
-            foreach (var text in body.Descendants<Text>())
+            XmlNode title = document.CreateElement("title");
+            title.InnerText = DocmFileName;
+            element.AppendChild(title);
+
+            XmlNode chapter = document.CreateElement("chapter");
+            document.DocumentElement.AppendChild(chapter);
+
+
+            using (WordprocessingDocument doc = WordprocessingDocument.Open(DocmFilePath, true)) //можно использовать Stream
             {
-                XmlNode para = document.CreateElement("para");
-                para.InnerText = text.Text;
-                chapter.AppendChild(para);
+                var body = doc.MainDocumentPart.Document.Body;
+                foreach (var text in body.Descendants<Text>())
+                {
+                    XmlNode para = document.CreateElement("para");
+                    para.InnerText = text.Text;
+                    chapter.AppendChild(para);
+                }
             }
+            document.Save(XmlFilePath);
         }
-        document.Save(XmlFilePath);
+        catch (XmlException ex)
+        {
+            Console.WriteLine(ex.Message);
+            System.IO.StreamWriter ErrorLog = new System.IO.StreamWriter(LogFilePath, true);
+            ErrorLog.WriteLine(DocmFileName);
+            ErrorLog.Close();
+
+        }
 
     }
 
@@ -124,6 +153,7 @@ public class Parser
 
         StringBuilder sb = new StringBuilder();
         WordprocessingDocument package = WordprocessingDocument.Open(DocmFilePath, true); // Open a WordprocessingDocument for editing using the DocmFilePath.
+       
         OpenXmlElement element = package.MainDocumentPart.Document.Body;
         if (element == null)
         {
@@ -178,37 +208,37 @@ public class Parser
         return PlainTextInWord.ToString();
     }
 
-    public void addData(string XmlFilePath, StringBuilder str)
-    {
-        XmlDocument document = new XmlDocument();
+    //public void addData(string XmlFilePath, StringBuilder str)
+    //{
+    //    XmlDocument document = new XmlDocument();
 
-        document.Load(XmlFilePath);
-        XmlNode element = document.CreateElement("info");
-        document.DocumentElement.AppendChild(element);
-
-
-        XmlNode title = document.CreateElement("title");
-        title.InnerText = XmlFilePath;
-        element.AppendChild(title);
-
-        XmlNode chapter = document.CreateElement("chapter");
-        document.DocumentElement.AppendChild(chapter); // указываем родителя
-
-        XmlNode para = document.CreateElement("para");
-        para.InnerText = str.ToString();
-        chapter.AppendChild(para);
+    //    document.Load(XmlFilePath);
+    //    XmlNode element = document.CreateElement("info");
+    //    document.DocumentElement.AppendChild(element);
 
 
+    //    XmlNode title = document.CreateElement("title");
+    //    title.InnerText = XmlFilePath;
+    //    element.AppendChild(title);
+
+    //    XmlNode chapter = document.CreateElement("chapter");
+    //    document.DocumentElement.AppendChild(chapter); // указываем родителя
+
+    //    XmlNode para = document.CreateElement("para");
+    //    para.InnerText = str.ToString();
+    //    chapter.AppendChild(para);
 
 
-        document.Save(XmlFilePath);
-
-        // Console.WriteLine("Data have been added to xml!");
-
-        // Console.ReadKey();
-        // Console.WriteLine(XmlToJSON(document));
 
 
-    }
+    //    document.Save(XmlFilePath);
+
+    //    // Console.WriteLine("Data have been added to xml!");
+
+    //    // Console.ReadKey();
+    //    // Console.WriteLine(XmlToJSON(document));
+
+
+    //}
 }
 

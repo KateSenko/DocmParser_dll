@@ -1,0 +1,6 @@
+D:\Work\Parser\Parser\bin\x64\Debug\Parser.cs
+D:\Work\Parser\Parser\bin\x64\Debug\Parser.dll
+D:\Work\Parser\Parser\bin\x64\Debug\Parser.pdb
+D:\Work\Parser\Parser\obj\x64\Debug\ResolveAssemblyReference.cache
+D:\Work\Parser\Parser\obj\x64\Debug\Parser.dll
+D:\Work\Parser\Parser\obj\x64\Debug\Parser.pdb

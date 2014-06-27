@@ -1,0 +1,212 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Open XML SDK 2.5 Productivity Tool for Microsoft Office</title>
+</head>
+<body>
+
+    <h1>
+        Open XML SDK 2.5 Productivity Tool for Microsoft Office</h1>
+    <p>
+        &nbsp;</p>
+    <p>
+        The Open XML SDK 2.5 Productivity Tool for Microsoft Office requires a 
+        pre-installation of the Open XML SDK 2.5 for Microsoft Office. 
+        The tool integrates the following functionalities:</p>
+    <ul>
+        <li>Automatically generate Open XML SDK code based on document content. User will be 
+            able to directly copy, compile and run the code to re-generate the same document 
+            or specific parts of the documents.</li>
+        <li>Compare two documents and list the differences in the document part structure as 
+            well as the content difference inside the parts.</li>
+        <li>Automatically generate Open XML SDK code based on the content differences between 
+            two documents. User will be able to copy, compile and run the code on the source document to generate the 
+            target document.</li>
+        <li>Validate a document, part of a document or a segment of content inside a 
+            part against Office 2007, Office 2010, or Office 2013</li>
+        <li>Provide documentations on the following:<ul>
+            <li>Open XML SDK Reference</li>
+            <li>ECMA376 v1 Open XML File Formats standard </li>
+            <li>Microsoft Office implementation notes (which document the implementer notes 
+            between the ECMA376 v1 and Microsoft Office 2007 SP2 implementation)</li>
+            </ul>
+        </li>
+    </ul>
+    <p>
+        Note:
+        The tool is designed to help SDK developers learn more about the Open XML file 
+        formats and the SDK. So it works best with small to medium size documents.
+    </p>
+    <h2>
+        1. Open a file</h2>
+    <p>
+        Open an Open XML document by clicking on the Open command in the menu or the tool bar icon 
+        for open. Once 
+        the document is opened, the Document Explorer pane will show the part and xml structure of the 
+        document content.     </p>
+    <h3>
+        1.1 Document Type</h3>
+    <p>
+        The following types of documents can be opened by the tool:
+    <ul>
+        <li>Word documents: .docx, .docm, .dotx, .dotm</li>
+        <li>Excel documents: .xlsx, .xlsm, .xltx, .xltm</li>
+        <li>Powerpoint documents: .pptx, .pptm, .potx, .potm</li>
+    </ul>
+    <p>
+        Note: The tool cannot open a file if it is already opened by an application for 
+        edit.
+    </p>
+    <h3>
+        1.2 Document Part Structure</h3>
+    <p>
+        Tool uses &#39;{}&#39; to indicate the package, &#39;[]&#39; to indicate a part, &#39;&lt;&gt;&#39; to 
+        indicate the xml content inside a part. If a part is targeted to other parts, 
+        the targeted parts are listed under the source part with a symbol &#39;[]&#39; in the 
+        front. User could continue to unfold the tree to dive into its content.<p>
+        Binary part cannot be expanded to show its content.</p>
+    <h2>
+        2. Reflect Code</h2>
+    <p>
+        The tool could generate reflected code that could be used to regenerate the 
+        whole document or part of the document.</p>
+    <h3>
+        2.1 Reflected Code Tab</h3>
+    <p>
+                The &quot;Reflected Code&quot; tab shows the generated code and the xml content when it 
+        could. If user is reflecting a segment content inside a part, the tab will also 
+        show its xml content in the upper part of the tab.
+    <p>
+        If the tab is set to be &#39;in-sync&#39; with the selection on the left Document 
+        Explorer tree view, then the reflected code and the xml content in the tab will 
+        change when the selection on the left Document Explorer tree view changes. If 
+        the tab is set to be &#39;not-in-sync&#39; state, then the content in the tab will be 
+        locked UNLESS user manually chooses to &#39;reflect code&#39; through the right click 
+        context menu, the toolbar icon or the file menu item.<br />
+        User set the state of the pane through the little green &#39;sync&#39; icon on the top 
+        right corner of the tab. When the icon shows a red circle with a cross out, the 
+        tab is set to be &#39;not-to-sync&#39;.</p>
+    <h2>
+        3. Compare Files</h2>
+    <p>
+                The tool compares 2 documents and show the differences at both package level and 
+        part level.
+    <p>
+        The compared documents should be of the same type. If the user accidently 
+        chooses to compare a word document with an excel document, the tool will report 
+        error.</p>
+    <p>
+        The source document of the comparison will be opened in the left Document 
+        Explorer tree view. If there was a document opened when comparing 2 files, that 
+        document will be closed. All the tab that relates to that document will be 
+        closed as well. However, changing selection in the Document Explorer tree view 
+        has no effect on the File Comparison Tab.</p>
+    <h3>
+        3.1 File Comparison Tab</h3>
+    <p>
+                At the beginning, the File Comparison Tab shows the structural differences 
+        between 2 documents. A list of the parts of both documents is shown side by 
+        side. The following color code legend is used:<ul>
+        <li>Red/Blue: if a part is colored red or blue, it means that it exists only in the 
+            current document, but not in the other document</li>
+        <li>Green: if a part is colored green, it means that there is a coorespndent part in 
+            the other document, but the conent inside that part is different from this part.</li>
+        <li>Black: if a part is colored black, it means that there is a coorespondent part 
+            in the other document and there is no difference between these two parts.</li>
+        <li>Grey: Binary parts are not comparable and they are colored as grey. </li>
+    </ul>
+    <h4>
+        3.1.1 View Part Diff</h4>
+    <p>
+                Choose any two parts and click &#39;View Part Diff&#39;, the tab content will change to 
+        show the differences inside these 2 parts. Although API could compare any 2 xml 
+        parts, we recommend user to choose the 2 parts that are relevant (such as 
+        MainDocumentPart from both documents)<p>
+        User could use &quot;First&quot;, &quot;Last&quot;, &quot;Previous&quot; and &quot;Next&quot; to navigate among the 
+        differences.</p>
+    <p>
+        Button &quot;More Option&quot; is enabled when there are attributes that are different. 
+        When it is enabled, clicking on it will open a dialog that allows user to choose 
+        to ignoare attribute differences during comparison of these 2 parts. A list of 
+        attributes that have different values are shown and also the number of 
+        differences discovered.
+    </p>
+    <h4>
+        3.1.2 View/Hide Code</h4>
+    <p>
+        The tool will also generate the code that could be used to &quot;patch&quot; the 
+        differences on the source document and then generate the target document. 
+        Clicking on &quot;View/Hide Code&quot; button will toggle the code pane in the tab. In 
+        this release, the tool can only generate the code for all the differences between 2 
+        documents. We are not able to generate code for the differences among 2 parts 
+        yet.
+    </p>
+    <h3>
+        3.2 Compare Options</h3>
+    <p>
+        Through the menu Settings/Compare Options, user could set the settings for the 
+        document comparison.     </p>
+    <ul>
+        <li>Show Line Numbers: the setting toggles the view of differences in parts and 
+            decide if the line numbers should be shown or not. The setting takes effect 
+            right away.</li>
+        <li>Ignore Xml Namespaces: when choosen, the tool will ignore the differences that 
+            the same Url being declared with different prefix.</li>
+        <li>Ignore Xml Declaration: when choosen, the tool will ignore the differences 
+            between xml declaration node.</li>
+    </ul>
+    <h2>
+        4. Validation</h2>
+    <p>
+        The tool provides validation functionality. User could choose to validate the 
+        whole document, a part of the document or even a part of the content inside a 
+        part of a document.
+    </p>
+    <p>
+        User could easily choose to validate a document based on the Office 2007 file 
+        formats, Office 2010 file formats, or Office 2013 file formats. The menu Settings/Validate Options has 3 
+        choices. The setting takes effect immediately.</p>
+    <p>
+        Just like &#39;Reflected Code&#39; tab, the &#39;Validation Result&#39; Tab also has toggel 
+        states -- &quot;in-sync&quot; or &quot;not-in-sync&quot;. The default state is &quot;not-in-sync&quot;. The 
+        expected behavior of the states is similar to that of the &#39;Reflected Code&#39; Tab. 
+        Please refer to section 2.1 for details.</p>
+    <h2>
+        5. Documentation</h2>
+    <p>
+        The tool provides the following documentation:</p>
+    <ul>
+        <li>SDK Reference</li>
+        <li>EECMA376 Open XML File Formats Standard v1</li>
+        <li>Implementer notes</ul>
+    <p>
+        These references are shown through the &quot;Open XML SDK Documentation&quot; pane on the 
+        left and &quot;Documentation&quot; tab on the right.&nbsp; The left &quot;Open XML SDK 
+        Documenation&quot; pane shows the namespaces defined in the SDK. Unfold a namespace, 
+        the top level types defined in the namespace is shown. Unfold any class, the 
+        possible child elements for this class in the file format is shown. The content 
+        is also searchable by the Open XML tag name.     </p>
+    <p>
+        Clicking on any type in the left pane, a &quot;Documentation&quot; tab will show up on the 
+        right side, if there is not one shown already. Inside the &quot;Documentation&quot; tab, 
+        there are 3 sub tabs &quot;API Documentation&quot;, &quot;File Format Reference&quot; and 
+        &quot;Implementer Notes&quot;. &quot;API Documentation&quot; contains detailed information of the 
+        SDK class such as its constructors, public methods, public properties. &quot;File 
+        Format Reference&quot; contains coorespondent section in the ECMA376 v1. It will 
+        explain what the xml tag is and what the expected behavior of the tag is. 
+        &quot;Implementer notes&quot; contains any public documented implementer notes about this 
+        Open XML tag.
+        <br />
+        The bottom pane of the &quot;Documentation&quot; tab is a tree view of the Open XML file 
+        format structure. It lists the allowed child element of the current class and 
+        the parent element defined by the Open XML File Formats.</p>
+    <h1>
+        6. Other Resources</h1>
+    <p>
+        For any other issues of the tool, please use the SDK forum at
+        <a href="http://social.msdn.microsoft.com/Forums/en-US/oxmlsdk/threads">
+        http://social.msdn.microsoft.com/Forums/en-US/oxmlsdk/threads</a>
+    </p>
+
+</body>
+</html>
