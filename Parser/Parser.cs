@@ -10,23 +10,11 @@ using System.Drawing.Design;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-//using DocumentFormat.OpenXml.Drawing.Wordprocessing;
-//using DocumentFormat.OpenXml.Drawing;
-
-
 
 public class Parser
 {
     //-----------DocBook---------------
     public Parser() { }
-
-    //[DllImport("DocumentFormat.OpenXml")]
-    //public extern class OpenXmlElement;
-
-    public String calc(String a, String b)
-    {
-        return "Ok";
-    }
 
     private static void createXML(string XmlFilePath, string str)
     {
@@ -48,14 +36,12 @@ public class Parser
             else
             {
                 //Console.WriteLine("File haven't been created. Xml already exist!");
-
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-        }
-        //   addData(XmlFilePath, str);
+        }      
     }
 
     // основная функция конвертации
@@ -65,7 +51,6 @@ public class Parser
         // FilePath = @"d:\1\";
         // DocmFileName = "130349";
         string LogFilePath = System.IO.Path.Combine(FilePath.ToString(), ("ErrorLog" + ".txt")); //file for containing error docx files
-
 
         string DocmFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocmFileName.ToString() + ".docx"));
         string XmlFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocmFileName.ToString() + ".xml"));
@@ -78,7 +63,6 @@ public class Parser
             XmlNode element = document.CreateElement("info");
             document.DocumentElement.AppendChild(element);
 
-
             XmlNode title = document.CreateElement("title");
             title.InnerText = DocmFileName;
             element.AppendChild(title);
@@ -90,8 +74,6 @@ public class Parser
             using (WordprocessingDocument doc = WordprocessingDocument.Open(DocmFilePath, true)) //можно использовать Stream
             {
                 var body = doc.MainDocumentPart.Document.Body;
-                //   var imageParts = doc.MainDocumentPart.ImageParts;
-
                 foreach (var text in body.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>())
                 {
 
@@ -99,56 +81,6 @@ public class Parser
                     para.InnerText = text.Text;
                     chapter.AppendChild(para);
                 }
-                //foreach (var elements in body.Descendants())
-                //{
-                //    if (elements.ToString() == "DocumentFormat.OpenXml.Wordprocessing.Text")
-                //    {
-                //        XmlNode para = document.CreateElement("para");
-                //        para.InnerText = elements.InnerText;
-                //        chapter.AppendChild(para);
-
-                //        Console.WriteLine("Text!");
-                //        Console.ReadKey();
-
-                //    }
-
-                //    var e = doc.MainDocumentPart.Parts.GetEnumerator();
-                //    int picNum = 0;
-
-                //    while (e.MoveNext())
-                //    {
-                //        picNum++;
-                //        if (e.Current.ToString() == "DocumentFormat.OpenXml.Wordprocessing.Drawing")
-                //        {
-                //            Stream stream = e.Current.OpenXmlPart.GetStream();
-
-                //            long length = stream.Length;
-                //            byte[] byteStream = new byte[length];
-                //            stream.Read(byteStream, 0, (int)length);
-
-                //            FileStream fstream = new FileStream(path + picNum + ".jpg", FileMode.OpenOrCreate);
-                //            fstream.Write(byteStream, 0, (int)length);
-                //            fstream.Close();
-                //        }
-                //        if (e.Current.ToString() == "DocumentFormat.OpenXml.Wordprocessing.Text")
-                //        {
-                //            XmlNode para = document.CreateElement("para");
-                //            para.InnerText = e.Current.InnerText;
-                //            chapter.AppendChild(para);
-                //        }
-                //    }
-                //if (elements.ToString() == "DocumentFormat.OpenXml.Wordprocessing.Drawing")
-                //{
-                //    ImagePart imagePart = elements.Current;
-                //}
-
-                //foreach (var prt in body.Descendants())
-                //{
-                //    if (prt.GetType().ToString().Equals(DocumentFormat.OpenXml.Wordprocessing.Text))
-                //        ;
-                //}
-                // }
-
             }
             document.Save(XmlFilePath);
         }
@@ -158,12 +90,9 @@ public class Parser
             System.IO.StreamWriter ErrorLog = new System.IO.StreamWriter(LogFilePath, true);
             ErrorLog.WriteLine(DocmFileName);
             ErrorLog.Close();
-
         }
 
     }
-
-
 
     private void addData(string XmlFilePath, string str)
     {
@@ -185,12 +114,7 @@ public class Parser
         XmlNode para = document.CreateElement("para");
         para.InnerText = str.ToString();
         chapter.AppendChild(para);
-
-
-
-
         document.Save(XmlFilePath);
-
     }
 
     //-------------Docm------------------
@@ -242,12 +166,10 @@ public class Parser
                     PlainTextInWord.Append(Environment.NewLine);
                     break;
 
-
                 // Tab 
                 case "tab":
                     PlainTextInWord.Append("\t");
                     break;
-
 
                 // Paragraph 
                 case "p":
@@ -255,56 +177,18 @@ public class Parser
                     PlainTextInWord.AppendLine(Environment.NewLine);
                     break;
 
-
                 default:
                     PlainTextInWord.Append(GetText(section));
                     break;
             }
         }
-
-
         return PlainTextInWord.ToString();
     }
 
-    //public void addData(string XmlFilePath, StringBuilder str)
-    //{
-    //    XmlDocument document = new XmlDocument();
-
-    //    document.Load(XmlFilePath);
-    //    XmlNode element = document.CreateElement("info");
-    //    document.DocumentElement.AppendChild(element);
-
-
-    //    XmlNode title = document.CreateElement("title");
-    //    title.InnerText = XmlFilePath;
-    //    element.AppendChild(title);
-
-    //    XmlNode chapter = document.CreateElement("chapter");
-    //    document.DocumentElement.AppendChild(chapter); // указываем родителя
-
-    //    XmlNode para = document.CreateElement("para");
-    //    para.InnerText = str.ToString();
-    //    chapter.AppendChild(para);
-
-
-
-
-    //    document.Save(XmlFilePath);
-
-    //    // Console.WriteLine("Data have been added to xml!");
-
-    //    // Console.ReadKey();
-    //    // Console.WriteLine(XmlToJSON(document));
-
-
-    //}
+   
 
     public void ParseDocxDocument(String FilePath, String DocmFileName)
     {
-        //  StringBuilder result = new StringBuilder();
-
-
-
         string DocmFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocmFileName.ToString() + ".docx"));
         string XmlFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocmFileName.ToString() + ".xml"));
 
@@ -313,7 +197,6 @@ public class Parser
         document.Load(XmlFilePath);
         XmlNode element = document.CreateElement("info");
         document.DocumentElement.AppendChild(element);
-
 
         XmlNode title = document.CreateElement("title");
         title.InnerText = DocmFileName;
@@ -397,7 +280,6 @@ public class Parser
                         foreach (OpenXmlElement chield in run.ChildElements.Where(o => o.GetType().Name == "Drawing"))   //добавление картинок
                         {
                             // <imagedata fileref="image.png" width="6in" depth="5.5in" scale="300"/>
-                            Console.WriteLine("picture!!");
                             XmlNode imagedata = document.CreateElement("imagedata");
                             chapter.AppendChild(imagedata);
                             XmlAttribute attribute = document.CreateAttribute("fileref");
@@ -409,7 +291,7 @@ public class Parser
                             imagedata.Attributes.Append(attribute);
                             imgCounter++;
                         }
-                        foreach (OpenXmlElement table in run.ChildElements.Where(o => o.GetType().Name == "Tbl"))     //обработка таблицы далее
+                        foreach (OpenXmlElement table in run.ChildElements.Where(o => o.GetType().Name == "table"))     //обработка таблицы далее
                         {
                             Console.WriteLine("Table!");
                             XmlNode para = document.CreateElement("para");
@@ -421,14 +303,7 @@ public class Parser
 
                 //Append inner text
                 IEnumerable<Text> textElement = par.Descendants<Text>();
-                //if (par.Descendants<Text>().Count() == 0)                   //если встречается пустая строка
-                //{
-                //    XmlNode para = document.CreateElement("para");
-                //    para.InnerText = "";
-                //    chapter.AppendChild(para);
-                //}
-
-
+                
                 foreach (Text t in textElement.Where(o => !tableCellContent.Contains(o.Text.Trim())))   //добавление текста
                 {
                     // Console.WriteLine("Text!");
@@ -436,62 +311,42 @@ public class Parser
                     para.InnerText = t.Text;
                     chapter.AppendChild(para);
                 }
-
-
-                //result.Append("</div>");
-                //result.Append(Environment.NewLine);
-
-
             }
-            else if (section.GetType().Name == "Drawing")
-            {
-                Console.WriteLine("Picture section!");
-                Picture pic = (Picture)section;
-                XmlNode imagedata = document.CreateElement("imagedata");
-                chapter.AppendChild(imagedata);
-                XmlAttribute attribute = document.CreateAttribute("fileref");
-                Image img = System.Drawing.Image.FromStream(imgPart[imgCounter].GetStream());
-                img.Save(System.IO.Path.GetTempPath() + @"\" + imgCounter + ".jpeg");
-                //attribute.Value = string.Format("<img style=\"{1}\" src=\"data:image/jpeg;base64,{0}\" />", GetBase64Image(imgPart[imgCounter].GetStream()),
-                //                            ((DocumentFormat.OpenXml.Vml.Shape)chield.ChildElements.Where(o => o.GetType().Name == "Shape").FirstOrDefault()).Style);  
-                imagedata.Attributes.Append(attribute);
-                imgCounter++;
-            }
-            else if (section.GetType().Name == "Tbl")
+            else if (section.GetType().Name == "Table")
             {
                 Console.WriteLine("Table 2!");
-                //result.Append("<table>");
-                //Table tab = (Table)section;
-                //foreach (TableRow row in tab.Descendants<TableRow>())
-                //{
-                //    result.Append("<tr>");
-                //    foreach (TableCell cell in row.Descendants<TableCell>())
-                //    {
-                //        result.Append("<td>");
-                //        result.Append(cell.InnerText);
-                //        tableCellContent.Add(cell.InnerText.Trim());
-                //        result.Append("</td>");
-                //    }
-                //    result.Append("</tr>");
-                //}
+                XmlNode table = document.CreateElement("table");
+                document.DocumentElement.AppendChild(table);
+                
+                XmlNode tbody = document.CreateElement("tbody");
+                table.AppendChild(tbody);
+
+                Table tab = (Table)section;
+                foreach (TableRow row in tab.Descendants<TableRow>())
+                {
+                    XmlNode trow = document.CreateElement("row");
+                    tbody.AppendChild(trow);
+                    foreach (TableCell cell in row.Descendants<TableCell>())
+                    {
+                        XmlNode entry = document.CreateElement("entry");
+                        entry.InnerText = cell.InnerText;
+                        trow.AppendChild(entry);
+
+                        //result.Append("<td>");
+                        //result.Append(cell.InnerText);
+                        //tableCellContent.Add(cell.InnerText.Trim());        ???
+                        //result.Append("</td>");
+                    }
+                   // result.Append("</tr>");
+                }
                 //result.Append("</table>");
             }
         }
 
-
         wordProcessingDoc.Close();
-
-        // return result.ToString();
-
-
         document.Save(XmlFilePath);
     }
 
-    private static string GetBase64Image(Stream inputData)
-    {
-        byte[] data = new byte[inputData.Length];
-        inputData.Read(data, 0, data.Length);
-        return Convert.ToBase64String(data);
-    }
+
 }
 
