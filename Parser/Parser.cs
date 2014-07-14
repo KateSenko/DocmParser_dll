@@ -13,9 +13,8 @@ using DocumentFormat.OpenXml.Wordprocessing;
 
 public class Parser
 {
-    //-----------DocBook---------------
-    public Parser() { }
-
+    public Parser() {}
+    
     private static void createXML(string XmlFilePath, string str)
     {
         try
@@ -41,156 +40,16 @@ public class Parser
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-        }      
-    }
-
-    // основная функция конвертации
-
-    public void convert(String FilePath, String DocmFileName)
-    {
-        // FilePath = @"d:\1\";
-        // DocmFileName = "130349";
-        string LogFilePath = System.IO.Path.Combine(FilePath.ToString(), ("ErrorLog" + ".txt")); //file for containing error docx files
-
-        string DocmFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocmFileName.ToString() + ".docx"));
-        string XmlFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocmFileName.ToString() + ".xml"));
-
-        try
-        {
-            createXML(XmlFilePath, "");
-            XmlDocument document = new XmlDocument();
-            document.Load(XmlFilePath);
-            XmlNode element = document.CreateElement("info");
-            document.DocumentElement.AppendChild(element);
-
-            XmlNode title = document.CreateElement("title");
-            title.InnerText = DocmFileName;
-            element.AppendChild(title);
-
-            XmlNode chapter = document.CreateElement("chapter");
-            document.DocumentElement.AppendChild(chapter);
-
-
-            using (WordprocessingDocument doc = WordprocessingDocument.Open(DocmFilePath, true)) //можно использовать Stream
-            {
-                var body = doc.MainDocumentPart.Document.Body;
-                foreach (var text in body.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>())
-                {
-
-                    XmlNode para = document.CreateElement("para");
-                    para.InnerText = text.Text;
-                    chapter.AppendChild(para);
-                }
-            }
-            document.Save(XmlFilePath);
         }
-        catch (XmlException ex)
-        {
-            Console.WriteLine(ex.Message);
-            System.IO.StreamWriter ErrorLog = new System.IO.StreamWriter(LogFilePath, true);
-            ErrorLog.WriteLine(DocmFileName);
-            ErrorLog.Close();
-        }
-
     }
 
-    private void addData(string XmlFilePath, string str)
+    public void ParseDocxDocument(String FilePath, String DocxFileName)
     {
-        //XmlFilePath += ".xml";
-        XmlDocument document = new XmlDocument();
+        string DocxFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocxFileName.ToString() + ".docx"));
+        string XmlFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocxFileName.ToString() + ".xml"));
 
-        document.Load(XmlFilePath);
-        XmlNode element = document.CreateElement("info");
-        document.DocumentElement.AppendChild(element);
-
-
-        XmlNode title = document.CreateElement("title");
-        title.InnerText = XmlFilePath;
-        element.AppendChild(title);
-
-        XmlNode chapter = document.CreateElement("chapter");
-        document.DocumentElement.AppendChild(chapter); // указываем родителя
-
-        XmlNode para = document.CreateElement("para");
-        para.InnerText = str.ToString();
-        chapter.AppendChild(para);
-        document.Save(XmlFilePath);
-    }
-
-    //-------------Docm------------------
-
-    public void WriteDocmDocument(string DocmFilePath, string str)
-    {
-        WordprocessingDocument wordprocessingDocument = WordprocessingDocument.Open(DocmFilePath, true);  // Open a WordprocessingDocument for editing using the DocmFilePath.
-        Body body = wordprocessingDocument.MainDocumentPart.Document.Body;  // Assign a reference to the existing document body.
-        DocumentFormat.OpenXml.Wordprocessing.Paragraph para = body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph());     // Add new text.
-        DocumentFormat.OpenXml.Wordprocessing.Run run = para.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Run());
-        run.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Text(str.ToString()));
-        wordprocessingDocument.Close(); // Close the handle explicitly.
-    }
-
-    public string ReadDocmDocument(string DocmFilePath)
-    {
-
-
-        StringBuilder sb = new StringBuilder();
-        WordprocessingDocument package = WordprocessingDocument.Open(DocmFilePath, true); // Open a WordprocessingDocument for editing using the DocmFilePath.
-
-        OpenXmlElement element = package.MainDocumentPart.Document.Body;
-        if (element == null)
-        {
-            return string.Empty;
-        }
-        sb.Append(GetText(element));
-
-        package.Close();
-        return sb.ToString();
-
-
-    }
-
-    private string GetText(OpenXmlElement element)
-    {
-        StringBuilder PlainTextInWord = new StringBuilder();
-        foreach (OpenXmlElement section in element.Elements())
-        {
-            switch (section.LocalName)
-            {
-                // Text 
-                case "t":
-                    PlainTextInWord.Append(section.InnerText);
-                    break;
-
-                case "cr":                          // Carriage return 
-                case "br":                          // Page break 
-                    PlainTextInWord.Append(Environment.NewLine);
-                    break;
-
-                // Tab 
-                case "tab":
-                    PlainTextInWord.Append("\t");
-                    break;
-
-                // Paragraph 
-                case "p":
-                    PlainTextInWord.Append(GetText(section));
-                    PlainTextInWord.AppendLine(Environment.NewLine);
-                    break;
-
-                default:
-                    PlainTextInWord.Append(GetText(section));
-                    break;
-            }
-        }
-        return PlainTextInWord.ToString();
-    }
-
-   
-
-    public void ParseDocxDocument(String FilePath, String DocmFileName)
-    {
-        string DocmFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocmFileName.ToString() + ".docx"));
-        string XmlFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocmFileName.ToString() + ".xml"));
+        int TagsCount = 0;
+        int TotalCount = 10;
 
         createXML(XmlFilePath, "");
         XmlDocument document = new XmlDocument();
@@ -199,13 +58,13 @@ public class Parser
         document.DocumentElement.AppendChild(element);
 
         XmlNode title = document.CreateElement("title");
-        title.InnerText = DocmFileName;
+        title.InnerText = DocxFileName;
         element.AppendChild(title);
 
         XmlNode chapter = document.CreateElement("chapter");
         document.DocumentElement.AppendChild(chapter);
 
-        WordprocessingDocument wordProcessingDoc = WordprocessingDocument.Open(DocmFilePath, true);
+        WordprocessingDocument wordProcessingDoc = WordprocessingDocument.Open(DocxFilePath, true);
         List<ImagePart> imgPart = wordProcessingDoc.MainDocumentPart.ImageParts.ToList();
         imgPart.Reverse();
         List<string> tableCellContent = new List<string>();
@@ -217,136 +76,124 @@ public class Parser
             if (section.GetType().Name == "Paragraph")
             {
                 Paragraph par = (Paragraph)section;
-                //Add new paragraph tag
-                //result.Append("<div style=\"width:100%; text-align:");
-
-                ////Append anchor style
-                //if (par.ParagraphProperties != null && par.ParagraphProperties.Justification != null)
-                //    switch (par.ParagraphProperties.Justification.Val.Value)
-                //    {
-                //        case JustificationValues.Left:
-                //            result.Append("left;");
-                //            break;
-                //        case JustificationValues.Center:
-                //            result.Append("center;");
-                //            break;
-                //        case JustificationValues.Both:
-                //            result.Append("justify;");
-                //            break;
-                //        case JustificationValues.Right:
-                //        default:
-                //            result.Append("right;");
-                //            break;
-                //    }
-                //else
-                //    result.Append("left;");
-
-                ////Append text decoration style
-                //if (par.ParagraphProperties != null && par.ParagraphProperties.ParagraphMarkRunProperties != null && par.ParagraphProperties.ParagraphMarkRunProperties.HasChildren)
-                //    foreach (OpenXmlElement chield in par.ParagraphProperties.ParagraphMarkRunProperties.ChildElements)
-                //    {
-                //        switch (chield.GetType().Name)
-                //        {
-                //            case "Bold":
-                //                result.Append("font-weight:bold;");
-                //                break;
-                //            case "Underline":
-                //                result.Append("text-decoration:underline;");
-                //                break;
-                //            case "Italic":
-                //                result.Append("font-style:italic;");
-                //                break;
-                //            case "FontSize":
-                //                result.Append("font-size:" + ((FontSize)chield).Val.Value + "px;");
-                //                break;
-                //            default: break;
-                //        }
-                //    }
-
-                //result.Append("\">");
-
-                //Add image tag
 
                 string pathString = System.IO.Path.Combine(FilePath, "img");
                 DirectoryInfo di = System.IO.Directory.CreateDirectory(pathString);
-
 
                 IEnumerable<Run> runs = par.Descendants<Run>();
                 foreach (Run run in runs)
                 {
                     if (run.HasChildren)
                     {
-
-                        foreach (OpenXmlElement chield in run.ChildElements.Where(o => o.GetType().Name == "Drawing"))   //добавление картинок
+                        foreach (OpenXmlElement chield in run.ChildElements.Where(o => o.GetType().Name == "Drawing"))   //обработка картинок
                         {
                             // <imagedata fileref="image.png" width="6in" depth="5.5in" scale="300"/>
+                            Console.WriteLine("Picture!");
                             XmlNode imagedata = document.CreateElement("imagedata");
                             chapter.AppendChild(imagedata);
                             XmlAttribute attribute = document.CreateAttribute("fileref");
                             Image img = System.Drawing.Image.FromStream(imgPart[imgCounter].GetStream());
-
                             string imgSavePath = pathString + @"\" + imgCounter + ".jpeg";
                             img.Save(imgSavePath);
                             attribute.Value = string.Format(imgSavePath + " />");
                             imagedata.Attributes.Append(attribute);
                             imgCounter++;
+                            
+                            if (TagsCount < TotalCount)
+                                TagsCount++;
+                            else
+                            {
+                                chapter = document.CreateElement("chapter");
+                                document.DocumentElement.AppendChild(chapter);
+                                TagsCount = 0;
+                            }
                         }
-                        foreach (OpenXmlElement table in run.ChildElements.Where(o => o.GetType().Name == "table"))     //обработка таблицы далее
+                        foreach (OpenXmlElement list in run.ChildElements.Where(o => o.GetType().Name == "NumeredProperty"))
                         {
-                            Console.WriteLine("Table!");
-                            XmlNode para = document.CreateElement("para");
-                            para.InnerText = "HERE IS TABLE";
-                            chapter.AppendChild(para);
+                            Console.WriteLine("List!");
+
                         }
                     }
                 }
 
-                //Append inner text
                 IEnumerable<Text> textElement = par.Descendants<Text>();
-                
-                foreach (Text t in textElement.Where(o => !tableCellContent.Contains(o.Text.Trim())))   //добавление текста
+
+                foreach (Text t in textElement.Where(o => !tableCellContent.Contains(o.Text)))   //добавление текста
                 {
-                    // Console.WriteLine("Text!");
                     XmlNode para = document.CreateElement("para");
                     para.InnerText = t.Text;
                     chapter.AppendChild(para);
+                    if (TagsCount < TotalCount)
+                        TagsCount++;
+                    else
+                    {
+                        chapter = document.CreateElement("chapter");
+                        document.DocumentElement.AppendChild(chapter);
+                        TagsCount = 0;
+                    }
                 }
             }
             else if (section.GetType().Name == "Table")
             {
+                Table tab = (Table)section;
+                IEnumerable<TableRow> tblrow = tab.Descendants<TableRow>();
+                Console.WriteLine(tblrow.Count().ToString());
+
+                IEnumerable<TableGrid> tblGrid = tab.Descendants<TableGrid>();
                 Console.WriteLine("Table 2!");
                 XmlNode table = document.CreateElement("table");
-                document.DocumentElement.AppendChild(table);
-                
+                chapter.AppendChild(table);
+                XmlAttribute frame = document.CreateAttribute("frame");     
+                frame.Value = "all";                        //      !!!    добавить варианты фрейма      !!!
+                table.Attributes.Append(frame);
+
+                XmlNode tgroup = document.CreateElement("tgroup");
+                table.AppendChild(tgroup);
+                XmlAttribute colspec = document.CreateAttribute("colspec");
+                tgroup.Attributes.Append(colspec);
+
                 XmlNode tbody = document.CreateElement("tbody");
                 table.AppendChild(tbody);
 
-                Table tab = (Table)section;
                 foreach (TableRow row in tab.Descendants<TableRow>())
                 {
                     XmlNode trow = document.CreateElement("row");
-                    tbody.AppendChild(trow);
+                    if (TagsCount < TotalCount)
+                    {
+                        TagsCount++;
+                        tbody.AppendChild(trow);
+                    }
+                    else
+                    {
+                        TagsCount = 0;
+                        chapter = document.CreateElement("chapter");
+                        document.DocumentElement.AppendChild(chapter);
+                        TagsCount = 0;
+                        table = document.CreateElement("table");
+                        chapter.AppendChild(table);
+                        frame = document.CreateAttribute("frame"); 
+                        frame.Value = "all";                        //      !!!   изменить верхинй и нижний фреймы для средних частей таблицы     !!!
+                        table.Attributes.Append(frame);
+
+                        tgroup = document.CreateElement("tgroup");
+                        colspec = document.CreateAttribute("colspec");
+                        tgroup.Attributes.Append(colspec);
+
+                        tbody = document.CreateElement("tbody");
+                        table.AppendChild(tbody);
+                    }
                     foreach (TableCell cell in row.Descendants<TableCell>())
                     {
                         XmlNode entry = document.CreateElement("entry");
+                        Console.WriteLine(cell.TableCellProperties.TableCellWidth.Width.InnerText);
                         entry.InnerText = cell.InnerText;
                         trow.AppendChild(entry);
-
-                        //result.Append("<td>");
-                        //result.Append(cell.InnerText);
-                        //tableCellContent.Add(cell.InnerText.Trim());        ???
-                        //result.Append("</td>");
                     }
-                   // result.Append("</tr>");
                 }
-                //result.Append("</table>");
             }
         }
-
         wordProcessingDoc.Close();
         document.Save(XmlFilePath);
     }
-
-
 }
 
