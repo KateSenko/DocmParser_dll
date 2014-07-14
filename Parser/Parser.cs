@@ -13,8 +13,31 @@ using DocumentFormat.OpenXml.Wordprocessing;
 
 public class Parser
 {
-    public Parser() {}
+    XmlDocument document;
+    XmlNode chapter;
+    List<ImagePart> imgPart;
+    string DocxFilePath;
+    string XmlFilePath;
+    String DocxFileName;
+    WordprocessingDocument wordProcessingDoc;
+    string pathString;
+    private int TagsCount = 0;
+    private int TotalCount = 10;
+    private int imgCounter = 0;
+
+    public Parser(String FilePath, String DocxFileName) 
+    {
+       document = new XmlDocument();
+       DocxFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocxFileName.ToString() + ".docx"));
+       XmlFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocxFileName.ToString() + ".xml"));
+       wordProcessingDoc = WordprocessingDocument.Open(DocxFilePath, true);
+       imgPart = wordProcessingDoc.MainDocumentPart.ImageParts.ToList();
+       imgPart.Reverse();
+       pathString = System.IO.Path.Combine(FilePath, "img");
+    }
+
     
+
     private static void createXML(string XmlFilePath, string str)
     {
         try
@@ -43,16 +66,9 @@ public class Parser
         }
     }
 
-    public void ParseDocxDocument(String FilePath, String DocxFileName)
+    public void ParseDocxDocument()
     {
-        string DocxFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocxFileName.ToString() + ".docx"));
-        string XmlFilePath = System.IO.Path.Combine(FilePath.ToString(), (DocxFileName.ToString() + ".xml"));
-
-        int TagsCount = 0;
-        int TotalCount = 10;
-
         createXML(XmlFilePath, "");
-        XmlDocument document = new XmlDocument();
         document.Load(XmlFilePath);
         XmlNode element = document.CreateElement("info");
         document.DocumentElement.AppendChild(element);
@@ -61,15 +77,14 @@ public class Parser
         title.InnerText = DocxFileName;
         element.AppendChild(title);
 
-        XmlNode chapter = document.CreateElement("chapter");
+        chapter = document.CreateElement("chapter");
         document.DocumentElement.AppendChild(chapter);
 
-        WordprocessingDocument wordProcessingDoc = WordprocessingDocument.Open(DocxFilePath, true);
-        List<ImagePart> imgPart = wordProcessingDoc.MainDocumentPart.ImageParts.ToList();
-        imgPart.Reverse();
+        
+
         List<string> tableCellContent = new List<string>();
         IEnumerable<Paragraph> paragraphElement = wordProcessingDoc.MainDocumentPart.Document.Descendants<Paragraph>();
-        int imgCounter = 0;
+        
 
         foreach (OpenXmlElement section in wordProcessingDoc.MainDocumentPart.Document.Body.Elements<OpenXmlElement>())
         {
@@ -77,44 +92,11 @@ public class Parser
             {
                 Paragraph par = (Paragraph)section;
 
-                string pathString = System.IO.Path.Combine(FilePath, "img");
+                
                 DirectoryInfo di = System.IO.Directory.CreateDirectory(pathString);
 
                 IEnumerable<Run> runs = par.Descendants<Run>();
-                foreach (Run run in runs)
-                {
-                    if (run.HasChildren)
-                    {
-                        foreach (OpenXmlElement chield in run.ChildElements.Where(o => o.GetType().Name == "Drawing"))   //обработка картинок
-                        {
-                            // <imagedata fileref="image.png" width="6in" depth="5.5in" scale="300"/>
-                            Console.WriteLine("Picture!");
-                            XmlNode imagedata = document.CreateElement("imagedata");
-                            chapter.AppendChild(imagedata);
-                            XmlAttribute attribute = document.CreateAttribute("fileref");
-                            Image img = System.Drawing.Image.FromStream(imgPart[imgCounter].GetStream());
-                            string imgSavePath = pathString + @"\" + imgCounter + ".jpeg";
-                            img.Save(imgSavePath);
-                            attribute.Value = string.Format(imgSavePath + " />");
-                            imagedata.Attributes.Append(attribute);
-                            imgCounter++;
-                            
-                            if (TagsCount < TotalCount)
-                                TagsCount++;
-                            else
-                            {
-                                chapter = document.CreateElement("chapter");
-                                document.DocumentElement.AppendChild(chapter);
-                                TagsCount = 0;
-                            }
-                        }
-                        foreach (OpenXmlElement list in run.ChildElements.Where(o => o.GetType().Name == "NumeredProperty"))
-                        {
-                            Console.WriteLine("List!");
-
-                        }
-                    }
-                }
+                getImages(runs, chapter);
 
                 IEnumerable<Text> textElement = par.Descendants<Text>();
 
@@ -123,14 +105,7 @@ public class Parser
                     XmlNode para = document.CreateElement("para");
                     para.InnerText = t.Text;
                     chapter.AppendChild(para);
-                    if (TagsCount < TotalCount)
-                        TagsCount++;
-                    else
-                    {
-                        chapter = document.CreateElement("chapter");
-                        document.DocumentElement.AppendChild(chapter);
-                        TagsCount = 0;
-                    }
+                    Separating();
                 }
             }
             else if (section.GetType().Name == "Table")
@@ -139,7 +114,7 @@ public class Parser
                 IEnumerable<TableRow> tblrow = tab.Descendants<TableRow>();
                 Console.WriteLine(tblrow.Count().ToString());
 
-                IEnumerable<TableGrid> tblGrid = tab.Descendants<TableGrid>();
+              //  IEnumerable<TableGrid> tblGrid = tab.Descendants<TableGrid>();
                 Console.WriteLine("Table 2!");
                 XmlNode table = document.CreateElement("table");
                 chapter.AppendChild(table);
@@ -168,7 +143,6 @@ public class Parser
                         TagsCount = 0;
                         chapter = document.CreateElement("chapter");
                         document.DocumentElement.AppendChild(chapter);
-                        TagsCount = 0;
                         table = document.CreateElement("table");
                         chapter.AppendChild(table);
                         frame = document.CreateAttribute("frame"); 
@@ -176,6 +150,7 @@ public class Parser
                         table.Attributes.Append(frame);
 
                         tgroup = document.CreateElement("tgroup");
+                        table.AppendChild(tgroup);
                         colspec = document.CreateAttribute("colspec");
                         tgroup.Attributes.Append(colspec);
 
@@ -185,8 +160,13 @@ public class Parser
                     foreach (TableCell cell in row.Descendants<TableCell>())
                     {
                         XmlNode entry = document.CreateElement("entry");
-                        Console.WriteLine(cell.TableCellProperties.TableCellWidth.Width.InnerText);
+                        Console.WriteLine(cell.TableCellProperties.TableCellWidth.Width.InnerText);     //ширина столбца
                         entry.InnerText = cell.InnerText;
+                        
+                        IEnumerable<Run> runs = cell.Descendants<Run>();
+
+                        getImages(runs, entry);
+
                         trow.AppendChild(entry);
                     }
                 }
@@ -194,6 +174,49 @@ public class Parser
         }
         wordProcessingDoc.Close();
         document.Save(XmlFilePath);
+    }
+
+    private void Separating()
+    {
+        if (TagsCount < TotalCount)
+            TagsCount++;
+        else
+        {
+            chapter = document.CreateElement("chapter");
+            document.DocumentElement.AppendChild(chapter);
+            TagsCount = 0;
+        }
+    }
+
+    private void getImages(IEnumerable<Run> runs, XmlNode node)
+    {
+        foreach (Run run in runs)
+        {
+            if (run.HasChildren)
+            {
+                foreach (OpenXmlElement chield in run.ChildElements.Where(o => o.GetType().Name == "Drawing"))   //обработка картинок
+                {
+                    // <imagedata fileref="image.png" width="6in" depth="5.5in" scale="300"/>
+                    Console.WriteLine("Picture!");
+                    XmlNode imagedata = document.CreateElement("imagedata");
+                    node.AppendChild(imagedata);
+                    XmlAttribute attribute = document.CreateAttribute("fileref");
+                    Image img = System.Drawing.Image.FromStream(imgPart[imgCounter].GetStream());
+                    string imgSavePath = pathString + @"\" + imgCounter + ".jpeg";
+                    img.Save(imgSavePath);
+                    attribute.Value = string.Format(imgSavePath + " />");
+                    imagedata.Attributes.Append(attribute);
+                    imgCounter++;
+
+                    Separating();
+                }
+                foreach (OpenXmlElement list in run.ChildElements.Where(o => o.GetType().Name == "NumeredProperty"))
+                {
+                    Console.WriteLine("List!");
+
+                }
+            }
+        }
     }
 }
 
